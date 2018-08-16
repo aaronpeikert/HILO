@@ -19,6 +19,7 @@ library(skimr)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
 knitr::read_chunk(here("scripts", "load.R"))
+knitr::read_chunk(here("scripts", "shape.R"))
 ```
 
 ```{r load}
@@ -27,22 +28,10 @@ knitr::read_chunk(here("scripts", "load.R"))
 ```{r normalize-trials}
 ```
 
-```{r}
-rect <- logfiles %>%
-  mutate(parsed = map2(parsed, ocasion, ~mutate(.x, occasion = .y))) %>%
-  pull(parsed) %>%
-  bind_rows() %>%
-  mutate(occasion = as.factor(occasion),
-         accurate = ifelse(time_passed < 0, NA, accurate))
+```{r rect}
+```
 
-retest <- rect %>%
-  group_by(subject, occasion) %>%
-  summarise(acc = mean(accurate, na.rm = TRUE),time = mean(time_passed, na.rm = TRUE)) %>% 
-  unite(acc_time, time, acc) %>% 
-  spread(occasion, acc_time) %>% 
-  separate(`1`, c("time1", "acc1"), sep = "_") %>% 
-  separate(`2`, c("time2", "acc2"), sep = "_") %>% 
-  mutate_at(vars(time1:acc2), as.numeric)
+```{r retest}
 ```
 
 ```{r}
@@ -52,6 +41,7 @@ rect %>% select(accurate, time_passed) %>% skim() %>% pander()
 ```{r}
 rect %>% group_by(occasion) %>% select(accurate, time_passed, occasion) %>% skim() %>% pander(split.tables = Inf)
 ```
+
 ```{r}
 rect %>% group_by(accurate) %>% select(occasion, accurate, time_passed) %>% skim() %>% pander()
 ```
