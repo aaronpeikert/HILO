@@ -59,11 +59,11 @@ First we want to evaluate the out of sample performance of the model. For that p
 ```{r rpart-loocv}
 ```
 
-# Best Model According to F-Measure
+## Best Model According to F-Measure
 
 ```{r}
 data_cv_metrics %>%
-  filter(F == max(F)) %>% 
+  filter(F == max(F)) %>% # higher is better
   ungroup() %>% 
   select(H, AUCH, Spec, Sens, TP, FP, TN, FN) %>% 
   .[1,] %>% 
@@ -73,7 +73,7 @@ data_cv_metrics %>%
 ```{r rpart-full-f}
 ```
 
-# Best Model According to H-Measure
+## Best Model According to H-Measure
 
 ```{r}
 data_cv_metrics %>%
@@ -86,3 +86,15 @@ data_cv_metrics %>%
 
 ```{r rpart-full-h}
 ```
+
+## Extrem Overfit
+
+Just storing the data without generalizing Do not use that model!
+
+```{r}
+recipe %>%
+  prep(data, retain = TRUE) %>%
+  fit_rpart(model = TRUE, minsplit = 1, minbucket = 1) %>% 
+  rpart.plot::rpart.plot()
+```
+
