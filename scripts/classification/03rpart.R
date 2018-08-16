@@ -37,15 +37,6 @@ pred_rpart <- function(split, recipe, model, ...) {
 data_cv <- mutate(data_cv,
                   predicted_rpart = pmap(list(splits, recipes, rpart_models),
                                           pred_rpart))
-data_cv %>%
-  group_by(minsplit, minbucket) %>%
-  nest() %>%
-  pull("data") %>%
-  map("predicted_rpart") %>%
-  map(bind_rows) %>%
-  map(~HMeasure(recode(.x$true, `2` = 0, `1` = 1), .x$predicted)) %>%
-  map("metrics") %>%
-  map_dbl("H")
 
 data_cv_metrics <- data_cv %>%
   group_by(minsplit, minbucket) %>%
