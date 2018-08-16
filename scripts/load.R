@@ -121,5 +121,3 @@ parse_trials <- function(trials)map_dfr(trials, parse_trial)
 logfiles <- mutate(logfiles, trials = map(file, normalize_trials),
                    parsed = map(trials, parse_trials))
 
-#----rename-ids----
-

@@ -10,6 +10,12 @@ rect <- logfiles %>%
   mutate(occasion = as.factor(occasion),
          accurate = ifelse(time_passed < 0, NA, accurate))
 
+#----recode-ids----
+rect <- mutate(rect, subject = recode(subject,
+                                      `500135` = "550135",
+                                      Pilot2 = "500135",
+                                      `00227` = "500227"))
+
 #----retest----
 retest <- rect %>%
   group_by(subject, occasion) %>%
