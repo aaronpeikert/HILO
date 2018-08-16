@@ -3,9 +3,9 @@ library(tidyverse)
 library(readr)
 
 #----load----
-whats_here <- function(dir)here(dir, list.files(here(dir)))
+whats_here <- function(...)here(..., list.files(here(...)))
 
-logfiles <- tibble(path = whats_here("data_clean"),
+logfiles <- tibble(path = whats_here("data", "sternberg_clean"),
                    ocasion = str_extract(path, "\\d.log$") %>%
                      str_remove(".log$") %>% as.numeric())
 header <- read_lines(logfiles$path[1], skip = 3, n_max = 1) %>%
