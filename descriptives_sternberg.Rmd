@@ -18,8 +18,8 @@ library(pander)
 library(skimr)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
-knitr::read_chunk(here("scripts", "load.R"))
-knitr::read_chunk(here("scripts", "shape.R"))
+knitr::read_chunk(here("scripts", "sternberg", "02load.R"))
+knitr::read_chunk(here("scripts", "sternberg","03shape.R"))
 ```
 
 ```{r load}

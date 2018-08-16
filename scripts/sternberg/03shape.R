@@ -1,7 +1,7 @@
 library(here)
 library(fs)
 library(haven)
-source(here("scripts", "load.R"))
+source(here("scripts", "sternberg", "02load.R"))
 #----rect----
 rect <- logfiles %>%
   mutate(parsed = map2(parsed, ocasion, ~mutate(.x, occasion = .y))) %>%
