@@ -20,6 +20,7 @@ library(skimr)
 library(rpart)
 library(rsample)
 library(hmeasure)
+library(rpart.plot)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(cache = TRUE)
 knitr::read_chunk(here("scripts", "classification", "01load.R"))
@@ -55,17 +56,33 @@ First we want to evaluate the out of sample performance of the model. For that p
 ```{r preprocess}
 ```
 
-```{r rpart}
+```{r rpart-loocv}
 ```
 
+# Best Model According to F-Measure
+
 ```{r}
-data_cv %>%
-  pull("predicted_rpart") %>%
-  bind_rows() %>% 
-  {HMeasure(recode(.$true, `2` = 0, `1` = 1), .$predicted)} %>% 
-  .$metrics %>% 
-  select(H, AUCH, Sens, Spec, TN, FP, TN, FN) %>% 
-  as_tibble() %>% 
+data_cv_metrics %>%
+  filter(F == max(F)) %>% 
+  ungroup() %>% 
+  select(H, AUCH, Spec, Sens, TP, FP, TN, FN) %>% 
+  .[1,] %>% 
   pander()
 ```
 
+```{r rpart-full-f}
+```
+
+# Best Model According to H-Measure
+
+```{r}
+data_cv_metrics %>%
+  filter(H == max(H)) %>% 
+  ungroup() %>% 
+  select(H, AUCH, Spec, Sens, TP, FP, TN, FN) %>% 
+  .[1,] %>% 
+  pander()
+```
+
+```{r rpart-full-h}
+```
