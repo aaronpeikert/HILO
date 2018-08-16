@@ -123,30 +123,3 @@ logfiles <- mutate(logfiles, trials = map(file, normalize_trials),
 
 #----rename-ids----
 
-
-#----some-unused-functions----
-
-all_clean_tasks <- function(subject_data){
-  encodes <- filter(subject_data, key == "encode") %>% pull("code")
-  items <- str_extract(encodes, "\\d*$")
-  codes <- pull(subject_data, "code")
-  out <- all(map_lgl(items, ~any(str_detect(codes, paste0("B_pict_", .x)))))
-  return(out)
-}
-
-count_tasks <- function(subject_data){
-  tab <- filter(subject_data, key == "encode") %>% pull("code") %>% table()
-  out <- sum(tab[tab != 1])/2L
-  return(out)
-}
-
-tab_tasks <- function(subject_data){
-  tab <- filter(subject_data, key == "encode") %>% pull("code") %>% table()
-  out <- tab[tab != 1]
-  return(out)
-}
-
-number_trials <- function(df){
-  if((NROW(df)%%4)==0)return(mutate(df, trials = rep(1:(NROW(df)%/%4), each = 4)))
-  else return(mutate(df, trials = NA))
-}
