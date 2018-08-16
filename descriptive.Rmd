@@ -1,0 +1,237 @@
+---
+title: "Descriptive Stats"
+author: "Aaron"
+date: "7/31/2018"
+output: 
+  html_document:
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+library(here)
+library(tidyverse)
+library(readr)
+library(pander)
+library(skimr)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::read_chunk(here("scripts", "load.R"))
+```
+
+```{r load}
+```
+
+```{r normalize-trials}
+```
+
+```{r}
+rect <- logfiles %>%
+  mutate(parsed = map2(parsed, ocasion, ~mutate(.x, occasion = .y))) %>%
+  pull(parsed) %>%
+  bind_rows() %>%
+  mutate(occasion = as.factor(occasion),
+         accurate = ifelse(time_passed < 0, NA, accurate))
+
+retest <- rect %>%
+  group_by(subject, occasion) %>%
+  summarise(acc = mean(accurate, na.rm = TRUE),time = mean(time_passed, na.rm = TRUE)) %>% 
+  unite(acc_time, time, acc) %>% 
+  spread(occasion, acc_time) %>% 
+  separate(`1`, c("time1", "acc1"), sep = "_") %>% 
+  separate(`2`, c("time2", "acc2"), sep = "_") %>% 
+  mutate_at(vars(time1:acc2), as.numeric)
+```
+
+```{r}
+rect %>% select(accurate, time_passed) %>% skim() %>% pander()
+```
+
+```{r}
+rect %>% group_by(occasion) %>% select(accurate, time_passed, occasion) %>% skim() %>% pander(split.tables = Inf)
+```
+```{r}
+rect %>% group_by(accurate) %>% select(occasion, accurate, time_passed) %>% skim() %>% pander()
+```
+
+```{r}
+rect %>% group_by(occasion) %>% select(occasion, accurate, time_passed) %>% skim() %>% pander()
+```
+
+```{r}
+rect %>% group_by(accurate, occasion) %>% select(occasion, accurate, time_passed) %>% skim() %>% pander()
+```
+
+```{r}
+cor.test(~ acc1 + acc2, retest) %>% pander()
+cor.test(~ time1 + time2, retest) %>% pander()
+```
+
+```{r}
+cor.test(~ acc1 + acc2, retest, method = "spearman", exact = FALSE) %>%
+  pander()
+cor.test(~ time1 + time2, retest, method = "spearman", exact = FALSE) %>%
+  pander()
+```
+
+```{r}
+cor.test(~ acc1 + acc2, retest, method = "kendall", exact = FALSE) %>%
+  pander()
+cor.test(~ time1 + time2, retest, method = "kendall", exact = FALSE) %>%
+  pander()
+```
+
+```{r}
+rect %>%
+  ggplot(aes(occasion, time_passed)) +
+  geom_violin(fill = "darkgrey") +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>% ggplot(aes(accurate, time_passed)) + 
+  geom_violin(fill = "darkgrey") +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>% ggplot(aes(accurate, time_passed)) + 
+  geom_violin(fill = "darkgrey") +
+  theme_minimal() +
+  facet_wrap(~occasion) +
+  NULL
+```
+
+```{r}
+rect %>%
+  group_by(trial, accurate) %>%
+  summarise(time = mean(time_passed)) %>%
+  ggplot(aes(trial, time, fill = accurate)) +
+  geom_col() +
+  facet_wrap(~accurate) +
+  NULL
+```
+
+```{r}
+rect %>%
+  group_by(trial, accurate, occasion) %>%
+  summarise(time = mean(time_passed)) %>%
+  ggplot(aes(trial, time, fill = accurate)) +
+  geom_col() +
+  facet_wrap(occasion~accurate) +
+  NULL
+```
+
+```{r}
+rect %>%
+  group_by(trial, occasion) %>%
+  summarise(accurate = mean(accurate)) %>%
+  ggplot(aes(trial, accurate, fill = occasion)) +
+  geom_col() +
+  facet_wrap(~occasion) +
+  NULL
+```
+
+```{r}
+library(zoo)
+rect %>% group_by(subject, accurate) %>%
+  arrange(trial) %>%
+  mutate(time.5 = rollmean(x = time_passed, 5, align = "right", fill = NA)) %>% 
+  unite(subject_accurate, subject, accurate, remove = FALSE) %>% 
+  ggplot(aes(trial, time.5, group = subject_accurate, color = accurate)) +
+  geom_line(alpha = .3) +
+  facet_wrap(~accurate) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  filter(time_passed >0 ) %>%
+  group_by(subject) %>%
+  arrange(trial) %>%
+  mutate(acc.5 = rollmean(x = accurate, 10, align = "right", fill = NA),
+        acc.5 = acc.5 + rnorm(length(acc.5), sd = .05)) %>% 
+  ggplot(aes(time_passed, acc.5, group = subject)) +
+  geom_line(alpha = .2) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  filter(time_passed >0 ) %>%
+  arrange(time_passed) %>%
+  mutate(acc.5 = rollmean(x = accurate, 500, align = "center", fill = NA)) %>% 
+  ggplot(aes(time_passed, acc.5, group = 1)) +
+  geom_line(alpha = .5) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  filter(time_passed >0 ) %>%
+  arrange(time_passed) %>%
+  mutate(acc.5 = rollmean(x = accurate, 100, align = "right", fill = NA)) %>% 
+  ggplot(aes(time_passed, acc.5, group = 1)) +
+  geom_line(alpha = .5) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  filter(time_passed >0 ) %>%
+  arrange(time_passed) %>%
+  mutate(acc.5 = rollmean(x = accurate, 10, align = "right", fill = NA)) %>% 
+  ggplot(aes(time_passed, acc.5, group = 1)) +
+  geom_line(alpha = .5) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  group_by(subject) %>% 
+  filter(time_passed >0 ) %>%
+  arrange(time_passed) %>%
+  mutate(acc.5 = rollmean(x = accurate, 20, align = "right", fill = NA)) %>% 
+  ggplot(aes(time_passed, acc.5, group = subject)) +
+  geom_line(alpha = .2) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+rect %>%
+  filter(time_passed >0 ) %>%
+  arrange(time_passed) %>%
+  mutate(acc.5 = rollmean(x = accurate, 500, align = "center", fill = NA)) %>% 
+  ggplot(aes(time_passed, acc.5, group = 1)) +
+  geom_line(alpha = .5) +
+  theme_minimal() +
+  NULL
+```
+
+```{r}
+glm(accurate ~ time_passed, data = rect, family = binomial) %>%
+  pander(round = 4)
+rect %>% filter(time_passed > 0) %>%
+  glm(accurate ~ time_passed + poly(time_passed, 2),
+      data = ., family = binomial) %>%
+  pander(round = 4)
+
+rect %>% filter(time_passed > 0) %>%
+  group_by(subject) %>% 
+  mutate(time_passed = time_passed - mean(time_passed)) %>% 
+  glm(accurate ~ time_passed,
+      data = ., family = binomial) %>% 
+  summary() %>% 
+  pander()
+```
+
