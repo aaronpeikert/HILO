@@ -1,0 +1,71 @@
+---
+title: "Descriptive Stats"
+author: "Aaron"
+date: "7/31/2018"
+output: 
+  html_document:
+    code_folding: hide
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(haven)
+library(recipes)
+library(pander)
+library(skimr)
+library(rpart)
+library(rsample)
+library(hmeasure)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::read_chunk(here("scripts", "classification", "01load.R"))
+knitr::read_chunk(here("scripts", "classification","02preprocess.R"))
+knitr::read_chunk(here("scripts", "classification","03rpart.R"))
+```
+
+# Descriptivs
+
+```{r load}
+```
+
+```{r, results='asis'}
+is_binary <- function(x, enforce_numeric = TRUE){
+  if(enforce_numeric&(!is.numeric(x)))return(FALSE)
+  else{
+    length(unique(x))==2
+  }
+}
+
+data %>%
+  mutate_if(is_binary, as.factor) %>% 
+  skim() %>% 
+  pander()
+```
+
+The few missing values are for the following steps mean/mode imputed.
+
+# Classification Tree
+
+First we want to evaluate the out of sample performance of the model. For that propuse I utilze cross-validation. Due to the small N (hence compuation will be fast) I choose leave one out crossvalidation, to get the lowest possible bias. After that I treat the results as if they come from one model to make it possible to make utilze nonbinary performance measures. This should yield valid out of sample perfomance estimates.
+
+```{r preprocess}
+```
+
+```{r rpart}
+```
+
+```{r}
+data_cv %>%
+  pull("predicted_rpart") %>%
+  bind_rows() %>% 
+  {HMeasure(recode(.$true, `2` = 0, `1` = 1), .$predicted)} %>% 
+  .$metrics %>% 
+  select(H, AUCH, Sens, Spec, TN, FP, TN, FN) %>% 
+  as_tibble() %>% 
+  pander()
+```
+
