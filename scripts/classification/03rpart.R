@@ -3,7 +3,7 @@ library(hmeasure)
 library(here)
 source(here("scripts", "classification", "02preprocess.R"))
 
-#----rpart----
+#----rpart-loocv----
 fit_rpart <- function(recipe, ...){
   #browser()
   pred <- recipe %>% juice(all_predictors()) %>% names()
@@ -31,4 +31,8 @@ data_cv <- mutate(data_cv,
                   predicted_rpart = pmap(list(splits, recipes, rpart_models),
                                           pred_rpart))
 
+#----rpart-full----
+recipe %>%
+  prep(data, retain = TRUE) %>%
+  fit_rpart()
 
