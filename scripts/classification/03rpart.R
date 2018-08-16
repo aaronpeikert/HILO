@@ -60,7 +60,7 @@ best_hyper_h <- data_cv_metrics %>% filter(H == max(H))
 best_hyper_h <- best_hyper_h[1, c("minsplit", "minbucket")]
 
 best_hyper_f <- data_cv_metrics %>% filter(F == max(F))
-best_hyper_f <- best_hyper_h[1, c("minsplit", "minbucket")]
+best_hyper_f <- best_hyper_f[1, c("minsplit", "minbucket")]
 
 #----rpart-full-h----
 recipe %>%
