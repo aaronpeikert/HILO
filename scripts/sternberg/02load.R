@@ -110,9 +110,11 @@ parse_trial <- function(trial){
   probe <- ifelse(probe == "3", 2, probe)
   accurate <- probe == response
   color <- meta %>% str_extract("color_\\d") %>% str_extract("\\d$")
+  valence <- meta %>% str_extract("valence_\\d") %>% str_extract("\\d$")
+  probenr <- meta %>% str_extract("probe_\\d") %>% str_extract("\\d$")
   subject <- pull(trial, "subject") %>% unique() %>% as.character()
   trial <- pull(trial, "trial") %>% unique()
-  out <- tibble(subject, trial, time_passed, accurate, color)
+  out <- tibble(subject, trial, time_passed, accurate, color, valence, probenr)
   return(out)
 }
 #parse_trial <- safely(parse_trial)
