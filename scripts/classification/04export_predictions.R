@@ -7,7 +7,7 @@ predicted <- recipe %>%
   fit_rpart(model = TRUE, minsplit = best_hyper_h$minsplit, minbucket = best_hyper_h$minbucket) %>% 
   predict(prob = TRUE) %>%
   as.data.frame() %>% 
-  pull(1)
+  pull(2)
 
 processed_data <- recipe %>%
   prep(data, retain = TRUE) %>% 
