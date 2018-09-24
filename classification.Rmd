@@ -51,7 +51,7 @@ The few missing values are for the following steps mean/mode imputed.
 
 # Classification Tree
 
-First we want to evaluate the out of sample performance of the model. For that propuse I utilze cross-validation. Due to the small N (hence compuation will be fast) I choose leave one out crossvalidation, to get the lowest possible bias. After that I treat the results as if they come from one model to make it possible to make utilze nonbinary performance measures. This should yield valid out of sample perfomance estimates.
+First we want to evaluate the out of sample performance of the model. For that propuse I utilze cross-validation. Due to the small N (hence compuation will be fast) I choose leave one out crossvalidation, to get the lowest possible bias. After that I treat the results as if they come from one model to make it possible to utilze nonbinary performance measures. This should yield valid out of sample perfomance estimates.
 
 ```{r preprocess}
 ```
@@ -60,6 +60,10 @@ First we want to evaluate the out of sample performance of the model. For that p
 ```
 
 ## Best Model According to F-Measure
+
+The following plots, can be read as following:
+
+The first line in each node represents the predicted group belonging for that node. The second line represents the estimated probability to belong to the first group, and the last line gives the proportion of the sample that falls into this node. The first node, represent the full sample (line three says 100%). Each split is a logical statement involving one variable of the dataset (e.g. age > 30). If a case resolves this statement to TRUE/yes (e.g a case with age 35) then the case falls into the lefthand node. If it resolves to FALSE/no (ege. age 10) it fals into the righthand node. The endnodes (bottom of the plot) represent the final "ruling" if the tree. There one can read the final predicted probability & class for a case that falls into this node.
 
 ```{r}
 data_cv_metrics %>%
