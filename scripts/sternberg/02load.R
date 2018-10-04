@@ -49,6 +49,7 @@ logfiles <- filter(logfiles, nrow > 50)
 normalize_trials <- function(file){
   code <- pull(file, "code")
   key <- pull(file, "key")
+  #edge1 finding out what encodings and meta belong together
   start <- code[key == "encode"]
   stop <- code[key == "meta"]
   start_nr <- str_extract(start, "\\d*$")
@@ -66,11 +67,13 @@ normalize_trials <- function(file){
     code[start_pos[i]] <- NA
     code[stop_pos[i]] <- NA
   }
+  #edge1 end
   insert_response <- function(trial){
     if("response" %in% pull(trial, "key")){
       nresponse <- sum("response" == pull(trial, "key"))
       if(nresponse==1)return(trial)
       else{
+        #edge4
         #browser()
         time_response <- pull(trial, "time")[pull(trial, "key")=="response"]
         time_response_early <- time_response[time_response<max(time_response)]
@@ -79,6 +82,7 @@ normalize_trials <- function(file){
       }
     }
     else{
+      #edge2
       #browser()
       part1 <- filter(trial, key != "meta")
       response <- part1[1,]
@@ -89,7 +93,7 @@ normalize_trials <- function(file){
       out <- rbind(part1, response, part2)
     }
   }
-  out <- map2(start_pos, stop_pos, ~(file[seq(.x, .y), ]))
+  out <- map2(start_pos, stop_pos, ~(file[seq(.x, .y), ])) #edge1 only select complete trials
   out <- map(out, insert_response)
   out <- imap(out, ~mutate(.x, trial = .y))
   return(out)

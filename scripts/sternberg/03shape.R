@@ -8,7 +8,7 @@ rect <- logfiles %>%
   pull(parsed) %>%
   bind_rows() %>%
   mutate(occasion = as.factor(occasion),
-         accurate = ifelse(time_passed < 0, NA, accurate))
+         accurate = ifelse(time_passed < 0, NA, accurate)) #edge3
 
 #----recode-ids----
 rect <- mutate(rect, subject = recode(subject,
