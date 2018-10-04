@@ -7,3 +7,5 @@
 supplement/
 data/
 out/
+*_files/
+*_cache/
